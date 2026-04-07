@@ -20,7 +20,7 @@ This is the **free version** of OpsMetric. It includes core functionality to hel
 - User presence tracking
 - Alert management and acknowledgment
 
-**Upgrade to OpsMetric Pro:** https://djangozen.com
+**Upgrade to OpsMetric Pro:** https://djangozen.com/product/opsmetric-pro/
 
 ## Quick Start
 
@@ -50,5 +50,5 @@ python manage.py runserver
 5. Login: **admin** / **admin**
 
 ---
-*Free version by DjangoZen. Upgrade to Pro at https://djangozen.com*
+*Free version by DjangoZen. Upgrade to Pro at https://djangozen.com/product/opsmetric-pro/*
 *Copyright 2026 DjangoZen. All Rights Reserved.*
