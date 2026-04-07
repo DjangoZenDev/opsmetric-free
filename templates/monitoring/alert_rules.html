@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Alert Rules - OpsMetric{% endblock %}
+{% block page_title %}Alert Rules{% endblock %}
+{% block nav_dashboard %}text-gray-500{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-gray-100">Alert Rules</h2>
+        <div class="flex items-center gap-3">
+            <button hx-post="{% url 'check_thresholds' %}"
+                    hx-swap="none"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Check Now
+            </button>
+        </div>
+    </div>
+
+    <!-- Create Rule Form -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Create New Rule</h3>
+        <form method="post" action="{% url 'create_alert_rule' %}" class="space-y-4">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Name -->
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Rule Name</label>
+                    <input type="text" name="name" required placeholder="e.g. High CPU Alert"
+                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition placeholder-gray-600">
+                </div>
+
+                <!-- Service (optional) -->
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Service <span class="text-gray-600">(optional)</span></label>
+                    <select name="service"
+                            class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-gray-300 rounded-lg text-sm focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+                        <option value="">All Services</option>
+                        {% for service in services %}
+                        <option value="{{ service.pk }}">{{ service.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Metric Type -->
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Metric Type</label>
+                    <select name="metric_type" required
+                            class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-gray-300 rounded-lg text-sm focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+                        <option value="response_time">Response Time (ms)</option>
+                        <option value="uptime">Uptime (%)</option>
+                        <option value="cpu">CPU Usage (%)</option>
+                        <option value="memory">Memory Usage (%)</option>
+                        <option value="disk">Disk Usage (%)</option>
+                    </select>
+                </div>
+
+                <!-- Operator -->
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Operator</label>
+                    <select name="operator" required
+                            class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-gray-300 rounded-lg text-sm focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+                        <option value="gt">Greater than</option>
+                        <option value="lt">Less than</option>
+                        <option value="gte">Greater or equal</option>
+                        <option value="lte">Less or equal</option>
+                        <option value="eq">Equal to</option>
+                    </select>
+                </div>
+
+                <!-- Threshold -->
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Threshold</label>
+                    <input type="number" name="threshold" required step="0.01" placeholder="e.g. 90"
+                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition placeholder-gray-600">
+                </div>
+
+                <!-- Severity -->
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Severity</label>
+                    <select name="severity" required
+                            class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-gray-300 rounded-lg text-sm focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+
+                <!-- Cooldown -->
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Cooldown <span class="text-gray-600">(min)</span></label>
+                    <input type="number" name="cooldown_minutes" value="15" min="1"
+                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Create Rule
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Existing Rules Table -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-800">
+            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Existing Rules</h3>
+        </div>
+
+        {% if rules %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-800">
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Condition</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Severity</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Active</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Last Triggered</th>
+                        <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-800/50">
+                    {% for rule in rules %}
+                    <tr class="hover:bg-gray-800/30 transition-colors">
+                        <td class="px-4 py-3">
+                            <div>
+                                <span class="text-sm font-medium text-gray-200">{{ rule.name }}</span>
+                                {% if rule.service %}
+                                <p class="text-xs text-gray-500 mt-0.5">{{ rule.service.name }}</p>
+                                {% else %}
+                                <p class="text-xs text-gray-600 mt-0.5">All services</p>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="text-sm text-gray-400 font-mono">
+                                {{ rule.get_metric_type_display }} {{ rule.get_operator_display }} {{ rule.threshold }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                {% if rule.severity == 'critical' %}bg-red-500/10 text-red-400
+                                {% elif rule.severity == 'high' %}bg-orange-500/10 text-orange-400
+                                {% elif rule.severity == 'medium' %}bg-yellow-500/10 text-yellow-400
+                                {% else %}bg-blue-500/10 text-blue-400{% endif %}">
+                                {{ rule.get_severity_display }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            {% if rule.is_active %}
+                            <span class="inline-flex items-center gap-1.5 text-xs text-emerald-400">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                Active
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center gap-1.5 text-xs text-gray-500">
+                                <span class="w-2 h-2 rounded-full bg-gray-600"></span>
+                                Inactive
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="text-xs text-gray-500 font-mono">
+                                {% if rule.last_triggered %}{{ rule.last_triggered|timesince }} ago{% else %}Never{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium
+                                    {% if rule.is_active %}bg-emerald-600/20 text-emerald-400{% else %}bg-gray-800 text-gray-500{% endif %}">
+                                    {% if rule.is_active %}Active{% else %}Disabled{% endif %}
+                                </span>
+                                <button hx-post="{% url 'delete_alert_rule' rule.pk %}"
+                                        hx-target="closest tr"
+                                        hx-swap="outerHTML swap:200ms"
+                                        hx-confirm="Delete rule '{{ rule.name }}'? This cannot be undone."
+                                        class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-8 text-center">
+            <svg class="w-12 h-12 text-gray-700 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <p class="text-gray-500">No alert rules configured yet.</p>
+            <p class="text-xs text-gray-600 mt-1">Create a rule above to start monitoring thresholds.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

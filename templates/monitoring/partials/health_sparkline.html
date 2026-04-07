@@ -1,0 +1,52 @@
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    {% for item in service_health %}
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-4">
+        <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full
+                    {% if item.service.status == 'operational' %}bg-emerald-500
+                    {% elif item.service.status == 'degraded' %}bg-yellow-500
+                    {% elif item.service.status == 'partial_outage' %}bg-orange-500
+                    {% else %}bg-red-500{% endif %}"></span>
+                <h3 class="text-sm font-medium text-gray-300">{{ item.service.name }}</h3>
+            </div>
+            <span class="text-xs font-mono
+                {% if item.avg_response_time < 100 %}text-emerald-400
+                {% elif item.avg_response_time < 300 %}text-yellow-400
+                {% elif item.avg_response_time < 1000 %}text-orange-400
+                {% else %}text-red-400{% endif %}">
+                avg {{ item.avg_response_time }}ms
+            </span>
+        </div>
+
+        <!-- Sparkline bar chart -->
+        <div class="flex items-end gap-px h-12">
+            {% for check in item.checks %}
+            {% with max_ms=3000 %}
+            <div class="flex-1 flex flex-col justify-end" title="{{ check.response_time_ms }}ms at {{ check.checked_at|date:'H:i' }}">
+                <div class="sparkline-bar rounded-t-sm min-h-[2px]
+                    {% if check.is_healthy %}
+                        {% if check.response_time_ms < 100 %}bg-emerald-500
+                        {% elif check.response_time_ms < 300 %}bg-emerald-400
+                        {% elif check.response_time_ms < 500 %}bg-yellow-500
+                        {% else %}bg-orange-500{% endif %}
+                    {% else %}bg-red-500{% endif %}"
+                    style="height: {% widthratio check.response_time_ms max_ms 48 %}px;"></div>
+            </div>
+            {% endwith %}
+            {% empty %}
+            <div class="flex-1 text-center text-xs text-gray-600 self-center">No data</div>
+            {% endfor %}
+        </div>
+
+        <div class="flex justify-between mt-2">
+            <span class="text-xs text-gray-600 font-mono">-24h</span>
+            <span class="text-xs text-gray-600 font-mono">now</span>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full text-center py-8 text-gray-600">
+        No health check data available.
+    </div>
+    {% endfor %}
+</div>

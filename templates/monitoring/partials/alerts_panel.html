@@ -1,0 +1,41 @@
+<div class="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Active Alerts</h3>
+            {% if unacked_alerts %}
+            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold bg-red-500 text-white">{{ unacked_alerts|length }}</span>
+            {% endif %}
+        </div>
+        <a href="{% url 'alerts_page' %}" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors">View All</a>
+    </div>
+
+    {% if unacked_alerts %}
+    <div class="divide-y divide-gray-800/50">
+        {% for alert in unacked_alerts|slice:":5" %}
+        <div class="px-4 py-3 hover:bg-gray-800/30 transition-colors">
+            <div class="flex items-start gap-2">
+                <!-- Severity dot -->
+                <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0
+                    {% if alert.severity == 'critical' %}bg-red-500 pulse-dot
+                    {% elif alert.severity == 'high' %}bg-orange-500
+                    {% elif alert.severity == 'medium' %}bg-yellow-500
+                    {% else %}bg-blue-500{% endif %}"></span>
+                <div class="min-w-0 flex-1">
+                    <p class="text-sm text-gray-300 truncate">{{ alert.message }}</p>
+                    <span class="text-xs text-gray-600 font-mono">{{ alert.triggered_at|timesince }} ago</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="p-6 text-center">
+        <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-2">
+            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+        </div>
+        <p class="text-xs text-gray-500">No active alerts</p>
+    </div>
+    {% endif %}
+</div>

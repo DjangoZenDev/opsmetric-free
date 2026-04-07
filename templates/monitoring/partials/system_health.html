@@ -1,0 +1,29 @@
+<div class="bg-gray-900 rounded-xl border border-gray-800 p-6 flex flex-col items-center justify-center">
+    <div class="relative w-32 h-32 mb-4">
+        <!-- Circular gauge using conic-gradient -->
+        <div class="w-full h-full rounded-full"
+             style="background: conic-gradient(
+                {% if health_score > 80 %}#10b981{% elif health_score > 60 %}#eab308{% elif health_score > 40 %}#f97316{% else %}#ef4444{% endif %} {{ health_score|default:0 }}%,
+                #1f2937 {{ health_score|default:0 }}% 100%
+             );">
+            <!-- Inner circle to create donut effect -->
+            <div class="absolute inset-3 bg-gray-900 rounded-full flex items-center justify-center flex-col">
+                <span class="text-3xl font-mono font-bold
+                    {% if health_score > 80 %}text-emerald-400
+                    {% elif health_score > 60 %}text-yellow-400
+                    {% elif health_score > 40 %}text-orange-400
+                    {% else %}text-red-400{% endif %}">{{ health_score|default:"0" }}</span>
+                <span class="text-xs text-gray-500 -mt-1">/ 100</span>
+            </div>
+        </div>
+        <!-- Track ring behind the gauge -->
+        <div class="absolute inset-0 rounded-full border-4 border-gray-800 pointer-events-none" style="z-index: -1;"></div>
+    </div>
+    <span class="text-sm font-medium text-gray-400 uppercase tracking-wider">System Health</span>
+    <span class="text-xs text-gray-600 mt-1">
+        {% if health_score > 80 %}All systems nominal
+        {% elif health_score > 60 %}Minor issues detected
+        {% elif health_score > 40 %}Degraded performance
+        {% else %}Critical state{% endif %}
+    </span>
+</div>

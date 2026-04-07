@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}OpsMetric - System Status{% endblock %}
+{% block page_title %}Public Status Page{% endblock %}
+
+{% block nav_dashboard %}text-gray-500{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+
+    <!-- Status Header -->
+    <div class="text-center py-8">
+        <div class="inline-flex items-center gap-3 mb-4">
+            <div class="w-4 h-4 rounded-full {{ overall_class }} {% if all_operational %}pulse-dot{% endif %}"></div>
+            <h1 class="text-3xl font-bold {{ overall_text_class }}">{{ overall_status }}</h1>
+        </div>
+        <p class="text-gray-500 text-sm font-mono">Updated {{ now|date:"M d, Y H:i:s" }} UTC</p>
+    </div>
+
+    <!-- Service List with 90-Day Uptime -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-800">
+            <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Current Status</h2>
+        </div>
+        {% for service in services %}
+        <div class="px-6 py-4 {% if not forloop.last %}border-b border-gray-800/50{% endif %}">
+            <!-- Service status row -->
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <span class="text-gray-200 font-medium">{{ service.name }}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-mono text-xs text-gray-500">{{ service.uptime_percentage }}% uptime</span>
+                    <div class="flex items-center gap-2 px-3 py-1 rounded-full
+                        {% if service.status == 'operational' %}bg-emerald-500/10 text-emerald-400
+                        {% elif service.status == 'degraded' %}bg-yellow-500/10 text-yellow-400
+                        {% elif service.status == 'partial_outage' %}bg-orange-500/10 text-orange-400
+                        {% else %}bg-red-500/10 text-red-400{% endif %}">
+                        <span class="w-2 h-2 rounded-full
+                            {% if service.status == 'operational' %}bg-emerald-500
+                            {% elif service.status == 'degraded' %}bg-yellow-500
+                            {% elif service.status == 'partial_outage' %}bg-orange-500
+                            {% else %}bg-red-500{% endif %}"></span>
+                        <span class="text-xs font-medium capitalize">{{ service.get_status_display }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 90-Day Uptime Visualization -->
+            <div class="mt-2">
+                <div class="flex items-center gap-px" title="90-day uptime history for {{ service.name }}">
+                    {% if service.daily_uptime %}
+                        {% for day in service.daily_uptime %}
+                        <div class="flex-1 h-6 rounded-sm transition-colors cursor-pointer group relative
+                            {% if day.uptime == 100 %}bg-emerald-500/80 hover:bg-emerald-500
+                            {% elif day.uptime >= 99 %}bg-yellow-500/80 hover:bg-yellow-500
+                            {% elif day.uptime >= 95 %}bg-orange-500/80 hover:bg-orange-500
+                            {% else %}bg-red-500/80 hover:bg-red-500{% endif %}"
+                             style="min-width: 2px;">
+                            <!-- Tooltip -->
+                            <div class="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-10">
+                                <div class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg px-2.5 py-1.5 whitespace-nowrap text-center">
+                                    <p class="text-xs text-gray-400">{{ day.date }}</p>
+                                    <p class="text-xs font-mono font-bold
+                                        {% if day.uptime == 100 %}text-emerald-400
+                                        {% elif day.uptime >= 99 %}text-yellow-400
+                                        {% elif day.uptime >= 95 %}text-orange-400
+                                        {% else %}text-red-400{% endif %}">{{ day.uptime }}%</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        {% for i in "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" %}
+                        <div class="flex-1 h-6 rounded-sm bg-emerald-500/80" style="min-width: 2px;"></div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="flex justify-between mt-1">
+                    <span class="text-xs text-gray-600 font-mono">90 days ago</span>
+                    <div class="flex items-center gap-3 text-xs text-gray-600">
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-emerald-500"></span>100%</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-yellow-500"></span>&ge;99%</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-orange-500"></span>&ge;95%</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-red-500"></span>&lt;95%</span>
+                    </div>
+                    <span class="text-xs text-gray-600 font-mono">Today</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Active Incidents -->
+    {% if active_incidents %}
+    <div class="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-800">
+            <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Active Incidents</h2>
+        </div>
+        {% for incident in active_incidents %}
+        <div class="px-6 py-4 {% if not forloop.last %}border-b border-gray-800/50{% endif %}">
+            <div class="flex items-start justify-between mb-2">
+                <a href="{% url 'incident_detail' incident.pk %}" class="text-gray-200 font-medium hover:text-white transition-colors">
+                    {{ incident.title }}
+                </a>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                    {% if incident.severity == 'critical' %}bg-red-500/10 text-red-400
+                    {% elif incident.severity == 'high' %}bg-orange-500/10 text-orange-400
+                    {% elif incident.severity == 'medium' %}bg-yellow-500/10 text-yellow-400
+                    {% else %}bg-blue-500/10 text-blue-400{% endif %}">
+                    {{ incident.get_severity_display }}
+                </span>
+            </div>
+            <p class="text-sm text-gray-500 mb-2">{{ incident.description|truncatewords:30 }}</p>
+            <div class="flex items-center gap-4 text-xs text-gray-600">
+                <span>{{ incident.service.name }}</span>
+                <span>Started {{ incident.started_at|timesince }} ago</span>
+                <span class="capitalize">{{ incident.get_status_display }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Recent Resolved Incidents -->
+    {% if recent_incidents %}
+    <div class="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-800">
+            <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Recently Resolved</h2>
+        </div>
+        {% for incident in recent_incidents %}
+        <div class="px-6 py-4 {% if not forloop.last %}border-b border-gray-800/50{% endif %}">
+            <div class="flex items-start justify-between">
+                <div>
+                    <a href="{% url 'incident_detail' incident.pk %}" class="text-gray-400 font-medium hover:text-gray-200 transition-colors">
+                        {{ incident.title }}
+                    </a>
+                    <div class="flex items-center gap-4 text-xs text-gray-600 mt-1">
+                        <span>{{ incident.service.name }}</span>
+                        <span>Duration: {{ incident.duration }}</span>
+                        <span>Resolved {{ incident.resolved_at|timesince }} ago</span>
+                    </div>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-800 text-gray-400">
+                    Resolved
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <div class="text-center py-6">
+        <p class="text-xs text-gray-600">Powered by OpsMetric</p>
+    </div>
+</div>
+{% endblock %}

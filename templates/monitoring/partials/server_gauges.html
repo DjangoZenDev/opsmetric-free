@@ -1,0 +1,87 @@
+<div class="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+    {% if server_metrics %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-gray-800">
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Host</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">CPU</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Memory</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Disk</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Net I/O</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-800/50">
+                {% for metric in server_metrics %}
+                <tr class="hover:bg-gray-800/30 transition-colors">
+                    <td class="px-4 py-3">
+                        <span class="text-sm font-mono text-gray-300">{{ metric.hostname }}</span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-24 h-2 bg-gray-800 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full gauge-fill
+                                    {% if metric.cpu_percent < 50 %}bg-emerald-500
+                                    {% elif metric.cpu_percent < 75 %}bg-yellow-500
+                                    {% elif metric.cpu_percent < 90 %}bg-orange-500
+                                    {% else %}bg-red-500{% endif %}"
+                                    style="width: {{ metric.cpu_percent }}%"></div>
+                            </div>
+                            <span class="text-xs font-mono w-12 text-right
+                                {% if metric.cpu_percent < 50 %}text-emerald-400
+                                {% elif metric.cpu_percent < 75 %}text-yellow-400
+                                {% elif metric.cpu_percent < 90 %}text-orange-400
+                                {% else %}text-red-400{% endif %}">{{ metric.cpu_percent }}%</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-24 h-2 bg-gray-800 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full gauge-fill
+                                    {% if metric.memory_percent < 50 %}bg-emerald-500
+                                    {% elif metric.memory_percent < 75 %}bg-yellow-500
+                                    {% elif metric.memory_percent < 90 %}bg-orange-500
+                                    {% else %}bg-red-500{% endif %}"
+                                    style="width: {{ metric.memory_percent }}%"></div>
+                            </div>
+                            <span class="text-xs font-mono w-12 text-right
+                                {% if metric.memory_percent < 50 %}text-emerald-400
+                                {% elif metric.memory_percent < 75 %}text-yellow-400
+                                {% elif metric.memory_percent < 90 %}text-orange-400
+                                {% else %}text-red-400{% endif %}">{{ metric.memory_percent }}%</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-24 h-2 bg-gray-800 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full gauge-fill
+                                    {% if metric.disk_percent < 50 %}bg-emerald-500
+                                    {% elif metric.disk_percent < 75 %}bg-yellow-500
+                                    {% elif metric.disk_percent < 90 %}bg-orange-500
+                                    {% else %}bg-red-500{% endif %}"
+                                    style="width: {{ metric.disk_percent }}%"></div>
+                            </div>
+                            <span class="text-xs font-mono w-12 text-right
+                                {% if metric.disk_percent < 50 %}text-emerald-400
+                                {% elif metric.disk_percent < 75 %}text-yellow-400
+                                {% elif metric.disk_percent < 90 %}text-orange-400
+                                {% else %}text-red-400{% endif %}">{{ metric.disk_percent }}%</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="text-xs font-mono text-gray-400">
+                            <span class="text-emerald-500">&darr;</span> {{ metric.network_in_display }}
+                            <span class="text-blue-500 ml-2">&uarr;</span> {{ metric.network_out_display }}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-8 text-center text-gray-600">
+        No server metrics available.
+    </div>
+    {% endif %}
+</div>

@@ -1,0 +1,50 @@
+<div class="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+    {% if active_incidents %}
+    <div class="divide-y divide-gray-800/50">
+        {% for incident in active_incidents %}
+        <a href="{% url 'incident_detail' incident.pk %}" class="block px-4 py-4 hover:bg-gray-800/30 transition-colors">
+            <div class="flex items-start justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <!-- Severity indicator -->
+                    <span class="w-1.5 h-8 rounded-full flex-shrink-0
+                        {% if incident.severity == 'critical' %}bg-red-500
+                        {% elif incident.severity == 'high' %}bg-orange-500
+                        {% elif incident.severity == 'medium' %}bg-yellow-500
+                        {% else %}bg-blue-500{% endif %}"></span>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-200">{{ incident.title }}</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">{{ incident.service.name }}</p>
+                    </div>
+                </div>
+                <div class="flex flex-col items-end gap-1">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                        {% if incident.severity == 'critical' %}bg-red-500/10 text-red-400
+                        {% elif incident.severity == 'high' %}bg-orange-500/10 text-orange-400
+                        {% elif incident.severity == 'medium' %}bg-yellow-500/10 text-yellow-400
+                        {% else %}bg-blue-500/10 text-blue-400{% endif %}">
+                        {{ incident.get_severity_display }}
+                    </span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-800 text-gray-400 capitalize">
+                        {{ incident.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 ml-3.5 text-xs text-gray-600">
+                <span class="font-mono">{{ incident.duration }} ago</span>
+                <span>{{ incident.updates.count }} update{{ incident.updates.count|pluralize }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="p-8 text-center">
+        <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-3">
+            <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+        </div>
+        <p class="text-sm text-gray-500">No active incidents</p>
+        <p class="text-xs text-gray-600 mt-1">All systems running normally</p>
+    </div>
+    {% endif %}
+</div>

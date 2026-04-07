@@ -1,0 +1,35 @@
+{% if logs %}
+{% for log in logs %}
+<div class="px-4 py-1 flex items-start gap-3 hover:bg-gray-900/50 transition-colors border-b border-gray-900/50
+    {% if log.level == 'critical' %}bg-red-950/20{% endif %}">
+    <!-- Timestamp -->
+    <span class="text-gray-600 flex-shrink-0 w-[140px]">{{ log.timestamp|date:"M d H:i:s.u"|truncatechars:18 }}</span>
+
+    <!-- Level Badge -->
+    <span class="flex-shrink-0 w-[70px]">
+        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium uppercase
+            {% if log.level == 'debug' %}bg-gray-800 text-gray-400
+            {% elif log.level == 'info' %}bg-blue-900/30 text-blue-400
+            {% elif log.level == 'warning' %}bg-yellow-900/30 text-yellow-400
+            {% elif log.level == 'error' %}bg-orange-900/30 text-orange-400
+            {% elif log.level == 'critical' %}bg-red-900/30 text-red-400{% endif %}
+            {% if log.level == 'critical' %}pulse-dot{% endif %}">
+            {{ log.level }}
+        </span>
+    </span>
+
+    <!-- Source -->
+    <span class="text-cyan-400 flex-shrink-0 w-[120px] truncate" title="{{ log.source }}">{{ log.source }}</span>
+
+    <!-- Message -->
+    <span class="text-gray-300 flex-1 break-all">{{ log.message }}</span>
+</div>
+{% endfor %}
+{% else %}
+<div class="flex items-center justify-center py-12 text-gray-600">
+    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+    </svg>
+    No log entries found.
+</div>
+{% endif %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Log Viewer - OpsMetric{% endblock %}
+{% block page_title %}Log Viewer{% endblock %}
+{% block nav_dashboard %}text-gray-500{% endblock %}
+
+{% block content %}
+<div class="space-y-4" x-data="{ autoScroll: true, level: 'all', source: '' }">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <h2 class="text-xl font-semibold text-gray-100">Log Viewer</h2>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot"></span>
+                Live
+            </span>
+        </div>
+        <label class="flex items-center gap-2 text-sm text-gray-400 cursor-pointer select-none">
+            <input type="checkbox" x-model="autoScroll"
+                   class="w-4 h-4 rounded bg-gray-800 border-gray-700 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-0">
+            Auto-scroll
+        </label>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-4">
+        <form method="get" class="flex items-center gap-4 flex-wrap" id="log-filter-form">
+            <div class="flex items-center gap-2">
+                <label class="text-xs text-gray-500 uppercase tracking-wider">Level</label>
+                <select name="level" x-model="level" @change="document.getElementById('log-filter-form').submit()"
+                        class="bg-gray-800 border border-gray-700 text-gray-300 text-sm rounded-lg px-3 py-1.5 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+                    <option value="all">All Levels</option>
+                    <option value="debug">Debug</option>
+                    <option value="info">Info</option>
+                    <option value="warning">Warning</option>
+                    <option value="error">Error</option>
+                    <option value="critical">Critical</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-2 flex-1 min-w-[200px]">
+                <label class="text-xs text-gray-500 uppercase tracking-wider">Source</label>
+                <input type="text" name="source" x-model="source" placeholder="Filter by source..."
+                       class="flex-1 px-3 py-1.5 bg-gray-800 border border-gray-700 text-gray-300 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 outline-none transition placeholder-gray-600">
+            </div>
+            <button type="submit"
+                    class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                </svg>
+                Filter
+            </button>
+        </form>
+    </div>
+
+    <!-- Log Stream Container -->
+    <div class="bg-gray-950 rounded-xl border border-gray-800 overflow-hidden">
+        <div class="px-4 py-2 border-b border-gray-800 flex items-center justify-between bg-gray-900/50">
+            <div class="flex items-center gap-3 text-xs font-mono text-gray-600">
+                <span>TIMESTAMP</span>
+                <span>LEVEL</span>
+                <span>SOURCE</span>
+                <span>MESSAGE</span>
+            </div>
+            <span class="text-xs text-gray-600 font-mono">Refresh: 3s</span>
+        </div>
+        <div id="log-stream"
+             class="overflow-y-auto font-mono text-xs"
+             style="height: calc(100vh - 320px); min-height: 300px;"
+             hx-get="{% url 'log_stream' %}{% if request.GET.level and request.GET.level != 'all' %}?level={{ request.GET.level }}{% endif %}{% if request.GET.source %}&source={{ request.GET.source }}{% endif %}"
+             hx-trigger="load, every 3s"
+             hx-swap="innerHTML"
+             x-effect="if (autoScroll) { $nextTick(() => { $el.scrollTop = $el.scrollHeight; }); }">
+            {% include "monitoring/partials/log_entries.html" %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Incidents - OpsMetric{% endblock %}
+{% block page_title %}Incidents{% endblock %}
+{% block nav_dashboard %}text-gray-500{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Active Incidents -->
+    <div>
+        <h2 class="text-xl font-semibold text-gray-100 mb-4">Active Incidents</h2>
+        {% if active_incidents %}
+        <div class="space-y-3">
+            {% for incident in active_incidents %}
+            <a href="{% url 'incident_detail' incident.pk %}" class="block bg-gray-900 rounded-lg border border-gray-800 p-4 hover:border-gray-700 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                            {% if incident.severity == 'critical' %}bg-red-900/50 text-red-400 border border-red-800
+                            {% elif incident.severity == 'high' %}bg-orange-900/50 text-orange-400 border border-orange-800
+                            {% elif incident.severity == 'medium' %}bg-yellow-900/50 text-yellow-400 border border-yellow-800
+                            {% else %}bg-blue-900/50 text-blue-400 border border-blue-800{% endif %}">
+                            {{ incident.get_severity_display }}
+                        </span>
+                        <h3 class="text-sm font-medium text-gray-200">{{ incident.title }}</h3>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs text-gray-500">
+                        <span>{{ incident.service.name }}</span>
+                        <span class="font-mono">{{ incident.started_at|timesince }} ago</span>
+                    </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-400">{{ incident.description|truncatewords:30 }}</p>
+                <div class="mt-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-800 text-gray-400">
+                        {{ incident.get_status_display }}
+                    </span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-gray-900 rounded-lg border border-gray-800 p-8 text-center">
+            <svg class="w-12 h-12 text-emerald-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-gray-400">No active incidents. All systems operational.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'history_page' %}" class="text-sm text-emerald-400 hover:text-emerald-300">View incident history &rarr;</a>
+    </div>
+</div>
+{% endblock %}

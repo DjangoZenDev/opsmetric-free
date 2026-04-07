@@ -1,0 +1,89 @@
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+    <!-- Total Services -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-4 transition-all duration-300">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                </svg>
+            </div>
+            <span class="text-xs text-gray-500 uppercase tracking-wider">Services</span>
+        </div>
+        <span class="text-2xl font-mono font-bold text-gray-100">{{ total_services|default:"0" }}</span>
+    </div>
+
+    <!-- Healthy % -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-4 transition-all duration-300">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <span class="text-xs text-gray-500 uppercase tracking-wider">Healthy</span>
+        </div>
+        <span class="text-2xl font-mono font-bold
+            {% if healthy_percent > 95 %}text-emerald-400
+            {% elif healthy_percent > 90 %}text-yellow-400
+            {% else %}text-red-400{% endif %}">{{ healthy_percent|default:"100" }}%</span>
+    </div>
+
+    <!-- Active Incidents -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-4 transition-all duration-300">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg {% if active_incident_count > 0 %}bg-red-500/10{% else %}bg-gray-800{% endif %} flex items-center justify-center">
+                <svg class="w-4 h-4 {% if active_incident_count > 0 %}text-red-400{% else %}text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+            </div>
+            <span class="text-xs text-gray-500 uppercase tracking-wider">Incidents</span>
+        </div>
+        <span class="text-2xl font-mono font-bold {% if active_incident_count > 0 %}text-red-400{% else %}text-gray-100{% endif %}">{{ active_incident_count|default:"0" }}</span>
+    </div>
+
+    <!-- Avg Response Time -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-4 transition-all duration-300">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+            </div>
+            <span class="text-xs text-gray-500 uppercase tracking-wider">Avg Resp</span>
+        </div>
+        <span class="text-2xl font-mono font-bold
+            {% if avg_response_time < 200 %}text-emerald-400
+            {% elif avg_response_time < 500 %}text-yellow-400
+            {% else %}text-red-400{% endif %}">{{ avg_response_time|default:"0" }}<span class="text-sm text-gray-500 ml-1">ms</span></span>
+    </div>
+
+    <!-- Unacked Alerts -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-4 transition-all duration-300">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg {% if unacked_alerts > 0 %}bg-orange-500/10{% else %}bg-gray-800{% endif %} flex items-center justify-center">
+                <svg class="w-4 h-4 {% if unacked_alerts > 0 %}text-orange-400{% else %}text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+            </div>
+            <span class="text-xs text-gray-500 uppercase tracking-wider">Alerts</span>
+        </div>
+        <span class="text-2xl font-mono font-bold {% if unacked_alerts > 0 %}text-orange-400{% else %}text-gray-100{% endif %}">{{ unacked_alerts|default:"0" }}</span>
+    </div>
+
+    <!-- Health Score -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-4 transition-all duration-300">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+            </div>
+            <span class="text-xs text-gray-500 uppercase tracking-wider">Health</span>
+        </div>
+        <span class="text-2xl font-mono font-bold
+            {% if health_score > 80 %}text-emerald-400
+            {% elif health_score > 60 %}text-yellow-400
+            {% elif health_score > 40 %}text-orange-400
+            {% else %}text-red-400{% endif %}">{{ health_score|default:"100" }}</span>
+    </div>
+</div>

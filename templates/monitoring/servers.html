@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Servers - OpsMetric{% endblock %}
+{% block page_title %}Server Metrics{% endblock %}
+{% block nav_dashboard %}text-gray-500{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-gray-100">Server Resources</h2>
+        <span class="text-xs text-gray-500 font-mono">Auto-refreshes every 10s</span>
+    </div>
+
+    <div id="server-gauges" hx-get="{% url 'server_metrics' %}" hx-trigger="every 10s" hx-swap="innerHTML">
+        {% include "monitoring/partials/server_gauges.html" %}
+    </div>
+</div>
+{% endblock %}

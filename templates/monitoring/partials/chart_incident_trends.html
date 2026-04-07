@@ -1,0 +1,69 @@
+<div class="bg-gray-900 rounded-xl border border-gray-800 p-4">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-medium text-gray-300">Incident Trends</h3>
+        <span class="text-xs text-gray-600 font-mono">Last 30 days</span>
+    </div>
+    <div class="relative" style="height: 260px;" x-data x-init="
+        fetch('{% url 'chart_incident_frequency' %}')
+            .then(r => r.json())
+            .then(data => {
+                const ctx = $refs.canvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Incidents',
+                            data: data.values,
+                            backgroundColor: data.values.map(v => v > 3 ? 'rgba(239, 68, 68, 0.6)' : v > 1 ? 'rgba(245, 158, 11, 0.6)' : 'rgba(16, 185, 129, 0.5)'),
+                            borderColor: data.values.map(v => v > 3 ? '#ef4444' : v > 1 ? '#f59e0b' : '#10b981'),
+                            borderWidth: 1,
+                            borderRadius: 3,
+                            maxBarThickness: 16
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#1f2937',
+                                titleColor: '#d1d5db',
+                                bodyColor: '#9ca3af',
+                                borderColor: '#374151',
+                                borderWidth: 1,
+                                padding: 10,
+                                displayColors: false,
+                                callbacks: {
+                                    label: function(ctx) {
+                                        return ctx.parsed.y + ' incident' + (ctx.parsed.y !== 1 ? 's' : '');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#6b7280', font: { size: 9, family: 'JetBrains Mono' }, maxRotation: 45, maxTicksLimit: 10 }
+                            },
+                            y: {
+                                grid: { color: 'rgba(75, 85, 99, 0.3)', drawBorder: false },
+                                ticks: { color: '#6b7280', font: { size: 10, family: 'JetBrains Mono' }, stepSize: 1 },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(() => {
+                $refs.canvas.parentElement.innerHTML = '<div class=\"flex items-center justify-center h-full text-gray-600 text-sm\">No incident trend data available</div>';
+            });
+    ">
+        <canvas x-ref="canvas"></canvas>
+    </div>
+</div>

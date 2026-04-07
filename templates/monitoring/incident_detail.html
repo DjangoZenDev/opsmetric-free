@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}OpsMetric - {{ incident.title }}{% endblock %}
+{% block page_title %}Incident Detail{% endblock %}
+
+{% block nav_dashboard %}text-gray-500{% endblock %}
+
+{% block header_status %}
+<div class="flex items-center gap-2">
+    {% if incident.is_active %}
+    <span class="w-2.5 h-2.5 rounded-full
+        {% if incident.severity == 'critical' %}bg-red-500
+        {% elif incident.severity == 'high' %}bg-orange-500
+        {% else %}bg-yellow-500{% endif %} pulse-dot"></span>
+    <span class="text-sm font-medium
+        {% if incident.severity == 'critical' %}text-red-400
+        {% elif incident.severity == 'high' %}text-orange-400
+        {% else %}text-yellow-400{% endif %}">Active Incident</span>
+    {% else %}
+    <span class="w-2.5 h-2.5 rounded-full bg-gray-500"></span>
+    <span class="text-sm text-gray-400 font-medium">Resolved</span>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Back link -->
+    <a href="{% url 'dashboard' %}" class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-300 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back to Dashboard
+    </a>
+
+    <!-- Incident Header -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <div class="flex items-start justify-between mb-4">
+            <h1 class="text-xl font-bold text-gray-100">{{ incident.title }}</h1>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+                    {% if incident.severity == 'critical' %}bg-red-500/10 text-red-400 border border-red-500/20
+                    {% elif incident.severity == 'high' %}bg-orange-500/10 text-orange-400 border border-orange-500/20
+                    {% elif incident.severity == 'medium' %}bg-yellow-500/10 text-yellow-400 border border-yellow-500/20
+                    {% else %}bg-blue-500/10 text-blue-400 border border-blue-500/20{% endif %}">
+                    {{ incident.get_severity_display }}
+                </span>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+                    {% if incident.status == 'resolved' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                    {% elif incident.status == 'monitoring' %}bg-blue-500/10 text-blue-400 border border-blue-500/20
+                    {% elif incident.status == 'identified' %}bg-yellow-500/10 text-yellow-400 border border-yellow-500/20
+                    {% else %}bg-orange-500/10 text-orange-400 border border-orange-500/20{% endif %}">
+                    {{ incident.get_status_display }}
+                </span>
+            </div>
+        </div>
+
+        <p class="text-gray-400 mb-4">{{ incident.description }}</p>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+                <span class="text-xs text-gray-600 uppercase tracking-wider">Service</span>
+                <p class="text-sm text-gray-300 font-medium mt-1">{{ incident.service.name }}</p>
+            </div>
+            <div>
+                <span class="text-xs text-gray-600 uppercase tracking-wider">Started</span>
+                <p class="text-sm text-gray-300 font-mono mt-1">{{ incident.started_at|date:"M d, H:i" }}</p>
+            </div>
+            <div>
+                <span class="text-xs text-gray-600 uppercase tracking-wider">Duration</span>
+                <p class="text-sm text-gray-300 font-mono mt-1">{{ incident.duration }}</p>
+            </div>
+            <div>
+                <span class="text-xs text-gray-600 uppercase tracking-wider">Resolved</span>
+                <p class="text-sm text-gray-300 font-mono mt-1">
+                    {% if incident.resolved_at %}{{ incident.resolved_at|date:"M d, H:i" }}{% else %}--{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Timeline -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-6">Incident Timeline</h2>
+
+        <div class="relative">
+            <!-- Timeline line -->
+            <div class="absolute left-4 top-0 bottom-0 w-px bg-gray-800"></div>
+
+            <div class="space-y-6">
+                {% for update in incident.updates.all %}
+                <div class="relative flex gap-4 pl-10">
+                    <!-- Timeline dot -->
+                    <div class="absolute left-2.5 top-1 w-3 h-3 rounded-full border-2 border-gray-900
+                        {% if update.status == 'resolved' %}bg-emerald-500
+                        {% elif update.status == 'monitoring' %}bg-blue-500
+                        {% elif update.status == 'identified' %}bg-yellow-500
+                        {% else %}bg-orange-500{% endif %}"></div>
+
+                    <div class="flex-1 bg-gray-800/50 rounded-lg p-4 border border-gray-800">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium capitalize
+                                {% if update.status == 'resolved' %}bg-emerald-500/10 text-emerald-400
+                                {% elif update.status == 'monitoring' %}bg-blue-500/10 text-blue-400
+                                {% elif update.status == 'identified' %}bg-yellow-500/10 text-yellow-400
+                                {% else %}bg-orange-500/10 text-orange-400{% endif %}">
+                                {{ update.get_status_display }}
+                            </span>
+                            <span class="text-xs text-gray-600 font-mono">{{ update.created_at|date:"M d, H:i:s" }}</span>
+                        </div>
+                        <p class="text-sm text-gray-300">{{ update.message }}</p>
+                        <p class="text-xs text-gray-600 mt-2">{{ update.created_by }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="pl-10 text-sm text-gray-600">No updates posted yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
