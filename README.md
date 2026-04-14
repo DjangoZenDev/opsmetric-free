@@ -1,5 +1,7 @@
 # OpsMetric Free
 
+![opsmetric-free](docs/screenshots/hero.png)
+
 **Real-time Metrics Operations Dashboard — Free Edition**
 *By DjangoZen - https://djangozen.com*
 
